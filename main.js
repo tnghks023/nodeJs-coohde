@@ -3,32 +3,32 @@ var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
 
-function templateHTML(title, list, body, control) {
-
-  return `
-  <!doctype html>
-  <html>
-  <head>
-    <title>WEB - ${title}</title>
-    <meta charset="utf-8">
-  </head>
-  <body>
-    <h1><a href="/">WEB</a></h1>
-    ${list}
-    ${control}
-    ${body}
-  </body>
-  </html>
-  `
-}
-
-function templateList(filelist) {
-  var list = '<ul>';
-  filelist.forEach(file => {
-    list += `<li><a href="/?id=${file}">${file}</a></li>`;
-  })
-  list += '</ul>';
-  return list;
+var template = {
+  HTML: (title, list, body, control) => {
+    return `
+    <!doctype html>
+    <html>
+    <head>
+      <title>WEB - ${title}</title>
+      <meta charset="utf-8">
+    </head>
+    <body>
+      <h1><a href="/">WEB</a></h1>
+      ${list}
+      ${control}
+      ${body}
+    </body>
+    </html>
+    `
+  }, 
+  LIST : (filelist) => {
+    var list = '<ul>';
+    filelist.forEach(file => {
+      list += `<li><a href="/?id=${file}">${file}</a></li>`;
+    })
+    list += '</ul>';
+    return list;
+  }
 }
 
 var app = http.createServer((request, response) => {
@@ -55,16 +55,16 @@ var app = http.createServer((request, response) => {
         control = `<a href="/create">create</a>`
       }
 
-      fs.readdir('data', (err, filelist) => {
+        fs.readdir('data', (err, filelist) => {
 
-        var list = templateList(filelist)
-
-        var template = templateHTML(title, list,
-          `<h2>${title}</h2>${description}`,
-          control);
-
-        response.writeHead(200);
-        response.end(template);
+          var list = template.LIST(filelist)
+  
+          var html = template.HTML(title, list,
+            `<h2>${title}</h2>${description}`,
+            control);
+  
+          response.writeHead(200);
+          response.end(html);
       })
     })
 
@@ -73,9 +73,9 @@ var app = http.createServer((request, response) => {
     title = 'WEB - create';
     fs.readdir('data', (err, filelist) => {
 
-      var list = templateList(filelist)
+      var list = template.LIST(filelist)
 
-      var template = templateHTML(title, list,
+      var html = template.HTML(title, list,
         `
         <form action="/create_process" method="post">
           <p><input type="text" name="title" placeholder="title"></p>
@@ -85,7 +85,7 @@ var app = http.createServer((request, response) => {
         `, '');
 
       response.writeHead(200);
-      response.end(template);
+      response.end(html);
     })
 
   } else if (pathname === '/create_process') {
@@ -120,9 +120,9 @@ var app = http.createServer((request, response) => {
 
       fs.readdir('data', (err, filelist) => {
 
-        var list = templateList(filelist)
+        var list = template.LIST(filelist)
 
-        var template = templateHTML(title, list,
+        var html = template.HTML(title, list,
           `
           <form action="/update_process" method="post">
             <input type="hidden" name="id" value="${title}">
@@ -136,7 +136,7 @@ var app = http.createServer((request, response) => {
           control);
 
         response.writeHead(200);
-        response.end(template);
+        response.end(html);
       })
     })
 
