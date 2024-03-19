@@ -3,6 +3,7 @@ var fs = require('fs');
 var url = require('url');
 var qs = require('querystring');
 var template = require('./lib/template.js')
+var path = require('path');
 
 
 var app = http.createServer((request, response) => {
@@ -11,9 +12,11 @@ var app = http.createServer((request, response) => {
   var pathname = url.parse(_url, true).pathname
   var title = queryData.id
 
+  var fileredId = path.parse(queryData.id).base;
   if (pathname == '/') {
 
-    fs.readFile(`data/${queryData.id}`, 'utf-8', (err, description) => {
+    fs.readFile(`data/${fileredId}`, 'utf-8', (err, description) => {
+      
       var control =
         `<a href="/create">create</a>
       <a href="/update?id=${title}">update</a>
@@ -85,7 +88,7 @@ var app = http.createServer((request, response) => {
     })
 
   } else if (pathname === '/update') {
-    fs.readFile(`data/${queryData.id}`, 'utf-8', (err, description) => {
+    fs.readFile(`data/${fileredId}`, 'utf-8', (err, description) => {
 
       var title = queryData.id
       var control =
@@ -146,8 +149,9 @@ var app = http.createServer((request, response) => {
     request.on('end', () => {
       var post = qs.parse(body);
       var id = post.id;
+      var fileredId = path.parse(id).base;
 
-      fs.unlink(`data/${id}`, () => {
+      fs.unlink(`data/${fileredId}`, () => {
         response.writeHead(302, {
           Location: `/`
         });
