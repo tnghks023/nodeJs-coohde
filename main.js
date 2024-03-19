@@ -47,7 +47,6 @@ var app = http.createServer((request, response) => {
         <input type="hidden" name="id" value="${title}">
         <input type="submit" value="delete">
       </form>
-
       `;
 
       if (title === undefined) {
@@ -159,11 +158,29 @@ var app = http.createServer((request, response) => {
           response.writeHead(302, {
             Location: `/?id=${title}`
           });
-          response.end('success');
+          response.end();
         })
       })
     })
 
+  } else if (pathname === '/delete_process') {
+    var body = '';
+    request.on('data', (data) => {
+      body += data;
+
+    })
+    request.on('end', () => {
+      var post = qs.parse(body);
+      var id = post.id;
+
+      fs.unlink(`data/${id}`, () => {
+        response.writeHead(302, {
+          Location: `/`
+        });
+        response.end();
+      })
+
+    })
   } else {
     response.writeHead(404);
     response.end('Not found');
