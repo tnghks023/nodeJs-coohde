@@ -10,17 +10,23 @@ var app = http.createServer((request, response) => {
   var title = queryData.id
 
   if (pathname == '/') {
-    fs.readFile(`data/${title}`, 'utf-8', (err, description) => {
 
+    fs.readFile(`data/${queryData.id}`, 'utf-8', (err, description) => {
+
+      if(title === undefined) {
+        title = 'Welcome';
+        description = "Hello Node.js"
+      } 
+      
       var template = `
       <!doctype html>
       <html>
       <head>
-        <title>WEB1 - HTML</title>
+        <title>WEB1 - ${title}</title>
         <meta charset="utf-8">
       </head>
       <body>
-        <h1><a href="/">${title}</a></h1>
+        <h1><a href="/">WEB</a></h1>
         <ol>
           <li><a href="/?id=HTML">HTML</a></li>
           <li><a href="?id=CSS">CSS</a></li>
