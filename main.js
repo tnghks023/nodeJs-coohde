@@ -78,26 +78,29 @@ var app = http.createServer((request, response) => {
       response.end(template);
     })
 
-  } else if(pathname === '/create_process') {
+  } else if (pathname === '/create_process') {
 
     var body = '';
-
     request.on('data', (data) => {
       body += data;
 
     })
-
     request.on('end', () => {
       var post = qs.parse(body);
       var title = post.title;
       var description = post.description;
-      
-      console.log(post.title)
+
+      fs.writeFile(`data/${title}`, description, 'utf8',(err) => {
+
+        response.writeHead(302, {
+          Location: `/?id=${title}`
+        });
+        response.end('success');
+      })
+
     })
 
-    response.writeHead(200);
-    response.end('success');
-  }else {
+  } else {
     response.writeHead(404);
     response.end('Not found');
   }
