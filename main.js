@@ -9,7 +9,7 @@ function templateHTML(title, list, body, control) {
   <!doctype html>
   <html>
   <head>
-    <title>WEBq - ${title}</title>
+    <title>WEB - ${title}</title>
     <meta charset="utf-8">
   </head>
   <body>
@@ -42,7 +42,13 @@ var app = http.createServer((request, response) => {
     fs.readFile(`data/${queryData.id}`, 'utf-8', (err, description) => {
       var control =
         `<a href="/create">create</a>
-      <a href="/update?id=${title}">update</a>`;
+      <a href="/update?id=${title}">update</a>
+      <form action="delete_process" method="post">
+        <input type="hidden" name="id" value="${title}">
+        <input type="submit" value="delete">
+      </form>
+
+      `;
 
       if (title === undefined) {
         title = 'Welcome';
