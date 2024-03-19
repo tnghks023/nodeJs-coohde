@@ -4,6 +4,7 @@ var url = require('url');
 var qs = require('querystring');
 var template = require('./lib/template.js')
 var path = require('path');
+const sanitizeHtml = require('sanitize-html');
 
 
 var app = http.createServer((request, response) => {
@@ -11,33 +12,41 @@ var app = http.createServer((request, response) => {
   var queryData = url.parse(_url, true).query;
   var pathname = url.parse(_url, true).pathname
   var title = queryData.id
+  var filerdId = '';
 
-  var fileredId = path.parse(queryData.id).base;
+
+  if (!(title === undefined)) {
+    fileredId = path.parse(title).base;
+  } 
+  
   if (pathname == '/') {
 
     fs.readFile(`data/${fileredId}`, 'utf-8', (err, description) => {
       
-      var control =
-        `<a href="/create">create</a>
-      <a href="/update?id=${title}">update</a>
-      <form action="delete_process" method="post">
-        <input type="hidden" name="id" value="${title}">
-        <input type="submit" value="delete">
-      </form>
-      `;
-
       if (title === undefined) {
         title = 'Welcome';
         description = "Hello Node.js"
         control = `<a href="/create">create</a>`
       }
 
+      var sanitizeTitle = sanitizeHtml(title);
+      var sanitizeDescription = sanitizeHtml(description, {
+        allowedTags:['h1']
+      });
+      var control =
+        `<a href="/create">create</a>
+      <a href="/update?id=${sanitizeTitle}">update</a>
+      <form action="delete_process" method="post">
+        <input type="hidden" name="id" value="${sanitizeTitle}">
+        <input type="submit" value="delete">
+      </form>
+      `;
         fs.readdir('data', (err, filelist) => {
 
           var list = template.LIST(filelist)
   
-          var html = template.HTML(title, list,
-            `<h2>${title}</h2>${description}`,
+          var html = template.HTML(sanitizeTitle, list,
+            `<h2>${sanitizeTitle}</h2>${sanitizeDescription}`,
             control);
   
           response.writeHead(200);
@@ -88,24 +97,28 @@ var app = http.createServer((request, response) => {
     })
 
   } else if (pathname === '/update') {
+    var fileredId = path.parse(title).base;
     fs.readFile(`data/${fileredId}`, 'utf-8', (err, description) => {
 
       var title = queryData.id
+
+      var sanitizeTitle = sanitizeHtml(title);
+      var sanitizeDescription = sanitizeHtml(description);
       var control =
         `<a href="/create">create</a>
-      <a href="/update?id=${title}">update</a>`;
+      <a href="/update?id=${sanitizeTitle}">update</a>`;
 
       fs.readdir('data', (err, filelist) => {
 
         var list = template.LIST(filelist)
 
-        var html = template.HTML(title, list,
+        var html = template.HTML(sanitizeTitle, list,
           `
           <form action="/update_process" method="post">
-            <input type="hidden" name="id" value="${title}">
-            <p><input type="text" name="title" placeholder="title" value="${title}"></p>
+            <input type="hidden" name="id" value="${sanitizeTitle}">
+            <p><input type="text" name="title" placeholder="title" value="${sanitizeTitle}"></p>
             <p>
-            <textarea name="description" placeholder="description">${description}</textarea>
+            <textarea name="description" placeholder="description">${sanitizeDescription}</textarea>
             </p>
             <p><input type="submit"></p>
           </form>
