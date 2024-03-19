@@ -8,7 +8,7 @@ function templateHTML(title, list, body) {
   <!doctype html>
   <html>
   <head>
-    <title>WEB1 - ${title}</title>
+    <title>WEBq - ${title}</title>
     <meta charset="utf-8">
   </head>
   <body>
